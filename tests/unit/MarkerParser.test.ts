@@ -136,6 +136,17 @@ test("parseMarkers detects a two-segment partition prefix", () => {
 	assert.equal(out[0]!.id, "CON-004");
 });
 
+test("parseMarkers detects a multi-segment id tail (policy-style neutral id)", () => {
+	// @covers sdd-cli:CST-007
+	// @covers sdd-cli:DLT-008
+	const text = "@cov" + "ers pol:POL-AUTH-001\n";
+	const out = parseMarkers(text, "f.ts");
+
+	assert.equal(out.length, 1);
+	assert.equal(out[0]!.partition, "pol");
+	assert.equal(out[0]!.id, "POL-AUTH-001");
+});
+
 test("parseMarkers detects a three-segment partition prefix (forward-compat)", () => {
 	// @covers sdd-cli:CST-007
 	const text = "@cov" + "ers acme:bridge:auth:BEH-001\n";

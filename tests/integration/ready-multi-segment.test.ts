@@ -106,6 +106,40 @@ test("multi-segment marker against an unconfigured partition triggers [unknown_p
 	assert.equal(unknown[0]!.id, "bridge:lock:INV-001");
 });
 
+test("multi-segment id tail: a policy-style neutral id is credited by its marker", async () => {
+	// @covers sdd-cli:CST-007
+	// @covers sdd-cli:DLT-008
+	const root = await readyFixture({
+		config: {
+			spec_file: "spec/policy.md",
+			baseline_id: "pol:BL-001",
+			discovery_scope: ["src"],
+			mechanism: "git_tree_hash_v1",
+			partitions: {
+				pol: {
+					spec_paths: ["spec/policy.md"],
+					test_paths: ["tests/pol/**/*.ts"],
+				},
+			},
+		},
+		files: {
+			"spec/policy.md": approvedSpec("pol:POL-AUTH-001", "pol"),
+			"tests/pol/foo.test.ts": "// @cov" + "ers pol:POL-AUTH-001\n",
+		},
+	});
+
+	const result = await runReady(root);
+	const env = parseEnvelope(result.stdout);
+
+	assert.equal(
+		result.code,
+		0,
+		`expected exit 0; stdout=${result.stdout}\nstderr=${result.stderr}`,
+	);
+	const uncovered = env.violations.filter((v) => v.kind === "uncovered");
+	assert.equal(uncovered.length, 0);
+});
+
 function approvedSpec(id: string, partition: string): string {
 	return `# ${id} fixture
 

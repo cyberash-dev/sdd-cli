@@ -8,7 +8,7 @@ import {
 	stringField,
 } from "./ConfigFields.js";
 import { configFailure } from "./Errors.js";
-import { NORMATIVE_ID_RE, PARTITION_NAME_RE } from "./PartitionGrammar.js";
+import { BASELINE_ID_RE, PARTITION_NAME_RE } from "./PartitionGrammar.js";
 import { MECHANISM_ID_RE } from "./VcsConformance.js";
 
 export type Mechanism = string;
@@ -119,7 +119,7 @@ export function configFromJson(value: unknown, path: string): SddConfig {
 			path,
 		);
 	}
-	if (!NORMATIVE_ID_RE.test(baselineId)) {
+	if (!BASELINE_ID_RE.test(baselineId)) {
 		throw configFailure(
 			"config-invalid",
 			`invalid baseline_id: ${baselineId}`,

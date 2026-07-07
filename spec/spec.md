@@ -8233,18 +8233,18 @@ constraint: |
     - <partition> matches ^[a-z][a-z0-9-]*(:[a-z][a-z0-9-]*)*$
       (one or more lowercase tokens joined by ':'; single-segment
       remains the default and is preserved bit-for-bit from v0.2.0)
-    - <id> matches ^[A-Z]+-\d+$
+    - <id> matches ^[A-Z]+(?:-[A-Z]+)*-\d+$
     - <key>=<value> tail tokens are split on the first `=` per
       whitespace-separated token; tokens whose key is not in the
       v0.3.0 whitelist {`compatibility_action`} are silently ignored
       (forward-compat for future v0.x keys; see OQ-016).
   Parsing is two-stage to avoid the JS/TS regex foot-gun where a
   single capture group with `*` keeps only the last match:
-    stage 1 — /@covers\s+([a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)*:[A-Z]+-\d+)([^\n\r]*)/g
+    stage 1 — /@covers\s+([a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)*:[A-Z]+(?:-[A-Z]+)*-\d+)([^\n\r]*)/g
               captures <partition>:<id> as a single group and the raw
               tail. Partition and id are split at the LAST `:` of the
               capture (rightmost-`:` is unambiguous because the id
-              tail `[A-Z]+-\d+` contains no `:` — implementation MUST
+              tail `[A-Z]+(?:-[A-Z]+)*-\d+` contains no `:` — implementation MUST
               use `lastIndexOf(":")`, not `indexOf(":")`).
     stage 2 — tokenise the tail by whitespace, split each token on
               first `=`, filter by the whitelist.
@@ -8854,6 +8854,60 @@ tests_new_behavior:
 caveats:
   - purely additive change; the old five-command allowlist is a subset of the
     new six-command allowlist, so nothing relying on the old set breaks.
+---
+```
+
+```yaml
+---
+id: sdd-cli:DLT-008
+type: Delta
+lifecycle:
+  status: approved
+  approval_record:
+    owner_role: tech-lead
+    approver_identity: cyberash
+    timestamp: 2026-07-07T16:46:03.247Z
+    change_request: "DLT-008: widen CST-007 id-tail grammar to multi-segment neutral ids (e.g. POL-AUTH-001)"
+    scope: first-time-approval
+partition_id: sdd-cli
+title: v1.3.0 → next — widen CST-007 id-tail grammar to multi-segment neutral ids
+target_ids:
+  - sdd-cli:CST-007
+kind: replace
+compatibility_action: ignore
+baseline_version: sdd-cli:BL-001@v1.3.0
+description: |
+  CST-007 pinned the normative-id tail to ^[A-Z]+-\d+$ (one uppercase type
+  segment plus a numeric ordinal, e.g. INV-002). Adopters with descriptive
+  policy ids such as pol:POL-AUTH-001 (tail POL-AUTH-001, two type segments)
+  were accepted by record-id validation and lint, yet the @covers marker
+  scanner rejected the same id, so the record could never be credited and
+  sdd ready reported a permanent [uncovered] with no matching near-miss
+  advisory. This widens the id tail to ^[A-Z]+(?:-[A-Z]+)*-\d+$ (one or more
+  uppercase type segments joined by '-', then the '-<digits>' ordinal),
+  closing that lint<->marker drift. It is a strict superset: every
+  single-segment tail parses byte-for-byte identically, and the rightmost-':'
+  split is unaffected because the tail still contains no ':'. The near-miss
+  recogniser (BEH-053) is realigned to source the shared ID_TAIL_RE_SRC
+  instead of a duplicated literal, so the two grammars cannot drift again.
+
+  The predicate edit to the already-approved CST-007 is applied by a one-off
+  manual spec edit, sanctioned by the partition owner, because the CLI offers
+  no in-place predicate-edit path for approved records (same exception as
+  DLT-007). CST-007 is a member of no Surface (SUR-008/ready lists
+  CTR-013/014/015/025), so finalising this Delta materialises no version bump.
+tests_old_behavior:
+  - single-segment id tails (e.g. sdd-cli:BEH-006) parse byte-for-byte and stay
+    credited; the charset-reject cases (lowercase / non-digit tails) stay
+    rejected (MarkerParser.test.ts)
+tests_new_behavior:
+  - parseMarkers detects a multi-segment id tail (pol:POL-AUTH-001 yields
+    partition=pol, id=POL-AUTH-001) (MarkerParser.test.ts)
+  - sdd ready credits a policy-style multi-segment neutral id via its @covers
+    marker — exit 0, zero uncovered (ready-multi-segment.test.ts)
+caveats:
+  - purely additive; the old single-segment tail grammar is a strict subset of
+    the new grammar, so nothing relying on the old set breaks.
 ---
 ```
 

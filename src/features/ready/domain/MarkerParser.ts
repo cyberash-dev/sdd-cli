@@ -44,7 +44,7 @@ export interface NearMissMarker {
  * (e.g. uppercase segment). Used to surface near-miss advisories (OQ-017).
  */
 const NEAR_MISS_RE = new RegExp(
-	`@covers\\s+([A-Za-z0-9_:-]+:[A-Z]+-\\d+)`,
+	`@covers\\s+([A-Za-z0-9_:-]+:${ID_TAIL_RE_SRC})`,
 	"g",
 );
 const STRICT_TARGET_RE = new RegExp(

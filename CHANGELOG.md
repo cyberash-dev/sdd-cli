@@ -10,6 +10,24 @@ landed.
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-07-07
+
+### Changed
+
+- **Multi-segment normative-id tails** (`DLT-008`, `CST-007`). The `@covers`
+  marker grammar's id tail widens from `^[A-Z]+-\d+$` to
+  `^[A-Z]+(?:-[A-Z]+)*-\d+$`, so descriptive neutral ids such as
+  `pol:POL-AUTH-001` are recognised. This is a strict superset: every
+  single-segment id (`INV-002`) parses byte-for-byte identically, and the
+  rightmost-`:` split is unchanged because the tail still contains no `:`.
+  Before this, such ids were accepted by record-id validation and `sdd lint`
+  but silently rejected by the `@covers` scanner, so `sdd ready` reported a
+  permanent `[uncovered]` that no marker could clear (and no near-miss
+  advisory surfaced). The near-miss recogniser (`BEH-053`) now sources the
+  shared `ID_TAIL_RE_SRC` instead of a duplicated literal, so the two
+  grammars can no longer drift. `CST-007` is a member of no Surface, so no
+  Surface version bumps.
+
 ## [1.3.0] — 2026-06-27
 
 ### Added

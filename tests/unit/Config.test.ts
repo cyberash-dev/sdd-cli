@@ -171,6 +171,23 @@ test("accepts a multi-segment baseline_id", () => {
 	assert.equal(config.baselineId, "bridge:gateway:BL-001");
 });
 
+test("rejects a multi-segment id tail in baseline_id (schema stays single-segment)", () => {
+	// @covers sdd-cli:CTR-003
+	// @covers sdd-cli:DLT-008
+	const value = {
+		spec_file: "spec/spec.md",
+		baseline_id: "pol:POL-AUTH-001",
+		discovery_scope: ["src"],
+		mechanism: "git_tree_hash_v1",
+	};
+
+	assert.throws(
+		() => configFromJson(value, ".sdd/config.json"),
+		(error: unknown) =>
+			error instanceof CliFailure && error.reason === "config-invalid",
+	);
+});
+
 test("rejects partition name with uppercase segment", () => {
 	// @covers sdd-cli:CTR-015
 	// @covers sdd-cli:CST-007

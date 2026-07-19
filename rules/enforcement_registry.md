@@ -7,7 +7,7 @@ Single source of truth for «which SDD requirement is closed by which channel».
 | Field | Value |
 |---|---|
 | sdd_methodology_version | 1.0.0 |
-| compatible_sdd_cli | >=1.0 <2.0 |
+| compatible_sdd_cli | >=1.0 <3.0 |
 | diagnostic_surface | @cyberash/sdd-cli/diagnostics@1.0 |
 
 ## Schema

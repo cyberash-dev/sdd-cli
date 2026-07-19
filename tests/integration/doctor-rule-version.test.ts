@@ -104,7 +104,7 @@ test("doctor exits 0 with empty drift when registry covers every diagnostic and 
 	// version in the test.
 	const { registryPath, cwd } = await fixtureRegistry(
 		buildRegistry({
-			compatRange: ">=0.1 <2.0",
+			compatRange: ">=0.1 <3.0",
 			rows: fullCoverageRows(),
 		}),
 	);
@@ -129,7 +129,7 @@ test("doctor exits 0 with empty drift when registry covers every diagnostic and 
 		drift: unknown[];
 	};
 	assert.equal(body.ok, true);
-	assert.equal(body.compatible_range, ">=0.1 <2.0");
+	assert.equal(body.compatible_range, ">=0.1 <3.0");
 	assert.deepEqual(body.drift, []);
 	assert.match(body.cli_version, /^\d+\.\d+\.\d+/);
 });
@@ -173,7 +173,7 @@ test("doctor reports missing_diagnostic when registry declares an unknown diagno
 	});
 	const { registryPath, cwd } = await fixtureRegistry(
 		buildRegistry({
-			compatRange: ">=0.1 <2.0",
+			compatRange: ">=0.1 <3.0",
 			rows,
 		}),
 	);
@@ -204,7 +204,7 @@ test("doctor reports stale_diagnostic when registry omits a known DiagnosticRegi
 	);
 	const { registryPath, cwd } = await fixtureRegistry(
 		buildRegistry({
-			compatRange: ">=0.1 <2.0",
+			compatRange: ">=0.1 <3.0",
 			rows,
 		}),
 	);
@@ -272,7 +272,7 @@ test("doctor reports planned-maturity rows as not declared, not as drift (BEH-02
 	});
 	const { registryPath, cwd } = await fixtureRegistry(
 		buildRegistry({
-			compatRange: ">=0.1 <2.0",
+			compatRange: ">=0.1 <3.0",
 			rows,
 		}),
 	);
@@ -295,7 +295,7 @@ test("doctor defaults --rules to repo-local rules/enforcement_registry.md (resol
 	await mkdir(join(cwd, "rules"));
 	await writeFile(
 		join(cwd, "rules", "enforcement_registry.md"),
-		buildRegistry({ compatRange: ">=0.1 <2.0", rows: fullCoverageRows() }),
+		buildRegistry({ compatRange: ">=0.1 <3.0", rows: fullCoverageRows() }),
 	);
 
 	const result = await runSdd(cwd, [
@@ -315,7 +315,7 @@ test("doctor defaults --rules to repo-local rules/enforcement_registry.md (resol
 
 test("doctor is read-only on its --rules input (INV-013)", async () => {
 	const content = buildRegistry({
-		compatRange: ">=0.1 <2.0",
+		compatRange: ">=0.1 <3.0",
 		rows: fullCoverageRows(),
 	});
 	const { registryPath, cwd } = await fixtureRegistry(content);

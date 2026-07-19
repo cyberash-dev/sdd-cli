@@ -10,6 +10,24 @@ landed.
 
 ## [Unreleased]
 
+## [2.0.0] — 2026-07-19
+
+### Removed
+
+- **Dropped Node 20 support (breaking).** `package.json#engines.node` is raised
+  from `">=20"` to `">=22"`, and CI now builds and tests on Node 22 only.
+  Governed by `DLT-009` (`kind: replace`,
+  `compatibility_action: no_longer_guaranteed`); the engines-minimum bump
+  cascades to a major bump on Surface `SUR-005` (`0.1.0` → `1.0.0`). Node 20 is
+  end-of-life; the toolchain targets Node 22 LTS. Consumers must be on Node 22
+  or newer.
+
+### Changed
+
+- **Clarified the npm `description`** to reflect that the CLI also distributes
+  the SDD methodology into AI coding agents, not only the freshness/lint/approve
+  loop.
+
 ## [1.4.1] — 2026-07-19
 
 ### Changed

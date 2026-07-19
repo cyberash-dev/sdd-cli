@@ -1,5 +1,7 @@
 # Writing a VCS adapter for `agent-sdd`
 
+> English · [Русский](writing-vcs-adapters.ru.md)
+
 `agent-sdd` reads the version-control state of your repository through a
 single port, the `Vcs` contract. The **built-in adapter shells to git** and
 is the default. If your repository is managed by a different version-control

@@ -10,12 +10,24 @@ landed.
 
 ## [Unreleased]
 
+## [1.4.1] — 2026-07-19
+
 ### Changed
 
 - **License changed from MIT to Apache License 2.0.** Added a `NOTICE` file
   carrying the required attribution (name + repository link) and shipped it in
   the npm package. Redistributions and derivative works must retain `NOTICE`
   per section 4 of the License. Versions released under MIT remain MIT.
+
+### Documentation
+
+- **README and docs overhaul.** The README is trimmed to core concepts plus a
+  quick start; the exhaustive command manual moves into focused `docs/` files
+  (`sdd-methodology`, `installing-rules`, `commands`, `configuration`), each
+  with a Russian mirror. The full 12-command surface is now documented
+  (including `plan`, `finalize`, `doctor`, `report` and the two-step
+  `approve`/`finalize` flow), stale version references are refreshed, and
+  character-drawn diagrams are replaced with mermaid.
 
 ## [1.4.0] — 2026-07-07
 

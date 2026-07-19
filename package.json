@@ -10,7 +10,7 @@
     "freshness-token",
     "baseline"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "cyberash <cyberash-dev@yandex.com>",
   "homepage": "https://github.com/cyberash-dev/agent-sdd#readme",
   "repository": {
@@ -30,7 +30,8 @@
     "schema",
     "rules",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "NOTICE"
   ],
   "exports": {
     ".": {

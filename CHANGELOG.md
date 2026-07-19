@@ -10,6 +10,13 @@ landed.
 
 ## [Unreleased]
 
+### Changed
+
+- **License changed from MIT to Apache License 2.0.** Added a `NOTICE` file
+  carrying the required attribution (name + repository link) and shipped it in
+  the npm package. Redistributions and derivative works must retain `NOTICE`
+  per section 4 of the License. Versions released under MIT remain MIT.
+
 ## [1.4.0] — 2026-07-07
 
 ### Changed

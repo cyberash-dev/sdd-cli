@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/cyberash-dev/agent-sdd/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberash-dev/agent-sdd/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Node ≥ 20](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+[![Node ≥ 22](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 
 📖 Read this in other languages: [Русский](README.ru.md)
 
@@ -70,7 +70,7 @@ The full annotated flowchart, every branch, and worked scenarios are in
 
 ### 1. Requirements
 
-- **Node.js ≥ 20**
+- **Node.js ≥ 22**
 - The default backend is **git** (`git ≥ 2.30` on `PATH`, run inside a repo). The
   VCS is pluggable — see [Writing a VCS adapter](docs/writing-vcs-adapters.md).
 

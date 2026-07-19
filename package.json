@@ -11,7 +11,7 @@
     "baseline"
   ],
   "license": "Apache-2.0",
-  "author": "cyberash <cyberash-dev@yandex.com>",
+  "author": "cyberash <mail@cyberash.dev>",
   "homepage": "https://github.com/cyberash-dev/agent-sdd#readme",
   "repository": {
     "type": "git",
@@ -40,7 +40,7 @@
     }
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public"

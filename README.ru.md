@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/cyberash-dev/agent-sdd/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberash-dev/agent-sdd/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Node ≥ 20](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+[![Node ≥ 22](https://img.shields.io/badge/node-%3E%3D22-brightgreen.svg)](package.json)
 
 📖 На других языках: [English](README.md)
 
@@ -75,7 +75,7 @@ flowchart TD
 
 ### 1. Требования
 
-- **Node.js ≥ 20**
+- **Node.js ≥ 22**
 - Бэкенд по умолчанию — **git** (`git ≥ 2.30` в `PATH`, запуск внутри
   репозитория). VCS подключаема — см. [Написание VCS-адаптера](docs/writing-vcs-adapters.ru.md).
 

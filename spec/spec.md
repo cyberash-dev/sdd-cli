@@ -244,7 +244,7 @@ lifecycle:
     scope: first-time-approval
 partition_id: sdd-cli
 name: sdd-cli/package
-version: "0.1.0"
+version: "1.0.0"
 boundary_type: sdk
 members:
   - sdd-cli:CTR-007
@@ -5182,7 +5182,7 @@ schema:
   bin:
     sdd: dist/cli.js
   engines:
-    node: ">=20"
+    node: ">=22"
   files: [dist, schema, README.md]
   exports:
     ".":
@@ -8005,20 +8005,20 @@ lifecycle:
     timestamp: 2026-04-29T15:37:35Z
     change_request: approve sdd-cli v1 specification block for implementation
 partition_id: sdd-cli
-constraint: Node runtime must be >= 20 (engines.node = ">=20")
+constraint: Node runtime must be >= 22 (engines.node = ">=22")
 rationale: |
   Aligns with the user's existing pipeline-driver stack; needed for
   modern node:test, top-level await in ESM, and stable `node --import`.
 test_obligation:
   predicate: |
-    package.json#engines.node equals ">=20" verbatim. Any runtime drift
+    package.json#engines.node equals ">=22" verbatim. Any runtime drift
     (e.g. ">=18" or removal of the engines block) fails the test.
   test_template: contract
   boundary_classes:
     - canonical package.json
   failure_scenarios:
     - engines.node missing
-    - engines.node downgraded to a value that does not include 20
+    - engines.node downgraded to a value that does not include 22
 ---
 ```
 
@@ -8908,6 +8908,58 @@ tests_new_behavior:
 caveats:
   - purely additive; the old single-segment tail grammar is a strict subset of
     the new grammar, so nothing relying on the old set breaks.
+---
+```
+
+```yaml
+---
+id: sdd-cli:DLT-009
+type: Delta
+lifecycle:
+  status: approved
+  approval_record:
+    owner_role: tech-lead
+    approver_identity: cyberash
+    timestamp: 2026-07-19T12:17:58.519Z
+    change_request: "DLT-009: drop Node 20, require engines.node >=22 (major bump SUR-005 0.1.0->1.0.0)"
+    scope: first-time-approval
+partition_id: sdd-cli
+title: v1.4.1 → v2.0.0 — drop Node 20, require engines.node ">=22"
+target_ids:
+  - sdd-cli:CTR-007
+  - sdd-cli:CST-001
+kind: replace
+compatibility_action: no_longer_guaranteed
+baseline_version: sdd-cli:BL-001@v1.4.1
+surface_impact:
+  - id: sdd-cli:SUR-005
+    intended_version: "1.0.0"
+description: |
+  CTR-007 (a SUR-005 member) and CST-001 pinned package.json#engines.node to
+  ">=20". This raises the minimum supported Node runtime to ">=22", dropping
+  Node 20. Per CTR-007 compatibility_rules, bumping the engines.node minimum is
+  a major bump on SUR-005 (0.1.0 -> 1.0.0), materialised here via surface_impact
+  at finalize.
+
+  The predicate edit to the already-approved CTR-007 and CST-001 is applied by a
+  one-off manual spec edit, sanctioned by the partition owner, because the CLI
+  offers no in-place predicate-edit path for approved records (same exception as
+  DLT-007 / DLT-008).
+
+  Consumer impact: installs and runs on Node 20 are no longer guaranteed. Node 20
+  has reached end-of-life; the toolchain targets Node 22 LTS. Shipped as the
+  breaking v2.0.0 release.
+tests_old_behavior:
+  - the CST-001 contract test previously asserted package.json#engines.node ==
+    ">=20" (tests/unit/constraints.test.ts); that assertion is replaced, not
+    retained, per compatibility_action=no_longer_guaranteed.
+tests_new_behavior:
+  - package.json#engines.node equals ">=22" verbatim (tests/unit/constraints.test.ts,
+    @covers sdd-cli:CST-001)
+  - CI builds and tests on Node 22 only (.github/workflows/ci.yml matrix)
+caveats:
+  - breaking for consumers pinned to Node 20; released as v2.0.0 with a matching
+    major bump on SUR-005.
 ---
 ```
 

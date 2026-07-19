@@ -49,11 +49,11 @@ interface ConfigSchema {
 	};
 }
 
-test('CST-001: package.json#engines.node is ">=20"', () => {
+test('CST-001: package.json#engines.node is ">=22"', () => {
 	// @covers sdd-cli:CST-001
 	const pkg = readJson<PackageJson>("package.json");
 
-	assert.equal(pkg.engines?.node, ">=20");
+	assert.equal(pkg.engines?.node, ">=22");
 });
 
 test("CST-002: tsconfig + package.json reflect TypeScript NodeNext / ES2022 / declaration / outDir, ESM module", () => {

@@ -203,7 +203,7 @@ export function createVcs(options: VcsAdapterOptions): Vcs | Promise<Vcs>;
   "type": "module",
   "main": "dist/index.js",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22" },
   "files": ["dist", "README.md"]
 }
 ```

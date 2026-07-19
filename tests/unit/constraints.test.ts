@@ -51,6 +51,7 @@ interface ConfigSchema {
 
 test('CST-001: package.json#engines.node is ">=22"', () => {
 	// @covers sdd-cli:CST-001
+	// @covers sdd-cli:DLT-009
 	const pkg = readJson<PackageJson>("package.json");
 
 	assert.equal(pkg.engines?.node, ">=22");

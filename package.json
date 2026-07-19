@@ -1,7 +1,7 @@
 {
   "name": "agent-sdd",
   "version": "1.4.1",
-  "description": "Spec-Driven Development helper CLI: freshness tokens, scope drift stubs, spec-lint, approval ceremony.",
+  "description": "Spec-Driven Development CLI: freshness tokens, spec-lint, human-gated approvals, and one-command SDD methodology install for AI coding agents (Claude Code, Codex).",
   "keywords": [
     "spec-driven-development",
     "sdd",

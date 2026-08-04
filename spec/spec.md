@@ -375,12 +375,16 @@ lifecycle:
     scope: first-time-approval
 partition_id: sdd-cli
 name: sdd-cli/diagnostics
-version: "0.7.0"
+version: "0.8.0"
 boundary_type: cli
 members:
   - sdd-cli:CTR-016
 consumer_compat_policy: semver_per_surface
 notes: |
+  v0.8.0 — adds the lint diagnostic `sdd:lifecycle-field-orphan`
+  (ENF-009B) to members.lint, closing the converse of ENF-009: a
+  lifecycle-only field carried at a status that does not call for it.
+  Minor bump per the append-only rule.
   v0.6.0 — adds the lint diagnostic `sdd:open-q-blocking` (ENF-059) to
   members.lint, mechanising the spec-valid rule "no unresolved
   Open-Q.blocking=yes". Minor bump per the append-only rule.
@@ -2629,7 +2633,9 @@ given: |
   - case A: a record declares surface_ref: <SUR> but is absent from
     <SUR>.members
   - case B: an approved Delta declares surface_impact { id: <SUR>,
-    intended_version: <V> } while <SUR>.version differs from <V>
+    intended_version: <V> } while <SUR>.version is behind <V>; a <SUR>.version
+    at or past <V> was carried there by a later Delta and is consistent. When
+    <V> does not parse as semver, any difference from <SUR>.version counts.
 when: |
   user runs `sdd ready`
 then: |
@@ -2646,13 +2652,17 @@ policy_refs:
 test_obligation:
   predicate: |
     ready emits surface_member_drift when a surface_ref child is missing from
-    its Surface.members, or when an approved Delta's surface_impact
-    intended_version differs from the target Surface.version; it emits no such
-    violation when both are consistent.
+    its Surface.members, or when the target Surface.version is behind an
+    approved Delta's surface_impact intended_version; it emits no such
+    violation when the Surface is at or past that version, nor when members
+    and surface_ref are consistent.
   test_template: unit
   boundary_classes:
     - surface_ref child missing from members
-    - approved Delta surface_impact version mismatch
+    - Surface behind an approved Delta surface_impact intended_version
+    - Surface past an approved Delta surface_impact intended_version
+      (superseded by a later Delta, negative case)
+    - non-semver intended_version differing from Surface.version
     - consistent surface (negative case)
   failure_scenarios:
     - drift reported as green
@@ -2835,6 +2845,62 @@ test_obligation:
     - adapter mechanism != config mechanism
   failure_scenarios:
     - a malformed adapter is accepted and used
+---
+```
+
+```yaml
+---
+id: sdd-cli:BEH-080
+type: Behavior
+lifecycle:
+  status: approved
+  approval_record:
+    owner_role: tech-lead
+    approver_identity: cyberash
+    timestamp: 2026-08-04T15:20:47.063Z
+    change_request: "DLT-010: publish sdd:lifecycle-field-orphan (ENF-009B), minor bump SUR-009 0.7.0->0.8.0"
+    scope: first-time-approval
+partition_id: sdd-cli
+title: sdd lint flags a lifecycle-only field carried at a status that does not call for it (ENF-009B)
+given: |
+  - a spec record carrying parsed.sunset_version or parsed.replacement_id
+    while lifecycle.status != "deprecated", OR carrying
+    parsed.compatibility_action while lifecycle.status != "removed"
+  - the field is not declared for that record's template in the IS_NORMATIVE
+    table (the Delta template declares compatibility_action as its own field)
+when: |
+  user runs `sdd lint`
+then: |
+  - exits 1 (error)
+  - one diagnostic with rule sdd:lifecycle-field-orphan per orphaned field,
+    naming the field, the observed status, and the status the field belongs to
+  - a record whose template declares the field fires nothing at any status
+applicability:
+  invariant_to_all_axes: true
+data_scope: not_applicable
+applicability_reason: lint operates on text
+policy_refs:
+  - sdd-cli:POL-001
+test_obligation:
+  predicate: |
+    An approved record carrying sunset_version or replacement_id fires one
+    diagnostic per field. A non-Delta record carrying compatibility_action at a
+    status other than removed fires one diagnostic. A deprecated record with
+    both sunset fields, a removed record with compatibility_action, and an
+    approved Delta with compatibility_action each fire nothing.
+  test_template: integration
+  boundary_classes:
+    - approved record with sunset_version
+    - approved record with replacement_id
+    - approved non-Delta record with compatibility_action
+    - approved Delta with compatibility_action
+    - deprecated record with both sunset fields
+    - removed record with compatibility_action
+  failure_scenarios:
+    - false positive on an approved Delta, for which compatibility_action is a
+      declared template field required on every behavior change
+    - false positive on a deprecated or removed record carrying the field
+      ENF-009 and ENF-026 require of it
 ---
 ```
 
@@ -5772,6 +5838,7 @@ schema:
       # P1 — cheap requiredness gaps (ENF-003/009/010/011/012)
       - sdd:baseline-version-required
       - sdd:deprecated-fields-required
+      - sdd:lifecycle-field-orphan
       - sdd:assumption-downgrade-approval
       - sdd:partition-default-policy-set
       - sdd:generated-artifact-surface-ref
@@ -8960,6 +9027,139 @@ tests_new_behavior:
 caveats:
   - breaking for consumers pinned to Node 20; released as v2.0.0 with a matching
     major bump on SUR-005.
+---
+```
+
+```yaml
+---
+id: sdd-cli:DLT-010
+type: Delta
+lifecycle:
+  status: approved
+  approval_record:
+    owner_role: tech-lead
+    approver_identity: cyberash
+    timestamp: 2026-08-04T15:20:47.131Z
+    change_request: "DLT-010: publish sdd:lifecycle-field-orphan (ENF-009B), minor bump SUR-009 0.7.0->0.8.0"
+    scope: first-time-approval
+partition_id: sdd-cli
+title: v2.0.0 → v2.1.0 — publish the lint diagnostic sdd:lifecycle-field-orphan
+target_ids:
+  - sdd-cli:CTR-016
+kind: replace
+compatibility_action: ignore
+baseline_version: sdd-cli:BL-001@v2.0.0
+surface_impact:
+  - id: sdd-cli:SUR-009
+    intended_version: "0.8.0"
+description: |
+  ENF-009 checks one direction only: deprecated => sunset_version +
+  replacement_id. Its converse is unenforced, so a record carrying
+  sunset_version and replacement_id while its status reads approved passes
+  sdd lint with zero diagnostics — an approved record that is simultaneously
+  in force and superseded. BEH-080 closes that direction for the three
+  lifecycle-only fields and publishes the diagnostic
+  sdd:lifecycle-field-orphan under CTR-016.schema.members.lint.
+
+  Adding a diagnostic-ID is append-only per CTR-016 compatibility_rules, so
+  SUR-009 takes a minor bump 0.7.0 -> 0.8.0, materialised here via
+  surface_impact at finalize. The same shape as the v0.6.0 addition of
+  sdd:open-q-blocking (ENF-059).
+
+  The edit to the already-approved CTR-016 member list is applied by a one-off
+  manual spec edit, sanctioned by the partition owner, because the CLI offers
+  no in-place edit path for approved records (same exception as DLT-007 /
+  DLT-008 / DLT-009).
+
+  compatibility_action=ignore: a consumer parsing the published member list
+  sees one new entry. Existing diagnostic-IDs keep their names and semantics,
+  so no consumer input is rejected or transformed.
+
+  Scope note: the rule skips a field that the record's template declares as
+  its own. compatibility_action is a required field of every Delta and is
+  carried at status approved by design, so Deltas are exempt; sunset_version
+  and replacement_id belong to no template and are checked on every record.
+tests_old_behavior:
+  - no test asserted the converse direction; a non-deprecated record carrying
+    sunset_version was silent and stays covered by the ENF-009 negative
+    fixture (tests/integration/p1-cheap-requiredness.test.ts, BEH-030), which
+    keeps asserting that sdd:deprecated-fields-required does not fire there
+tests_new_behavior:
+  - an approved record carrying sunset_version or replacement_id fires
+    sdd:lifecycle-field-orphan (tests/integration/p1-cheap-requiredness.test.ts,
+    @covers sdd-cli:BEH-080)
+  - an approved Delta carrying compatibility_action fires nothing
+    (tests/integration/p1-cheap-requiredness.test.ts, @covers sdd-cli:BEH-080)
+  - CTR-016.schema.members.lint deep-equals LINT_DIAGNOSTIC_IDS
+    (tests/unit/diagnostic-registry-coverage.test.ts, @covers sdd-cli:CTR-016)
+caveats:
+  - a downstream spec that already carries one of these fields at a
+    contradicting status turns red on upgrade; that is the contradiction the
+    rule exists to surface, and the remediation is in the diagnostic message
+---
+```
+
+```yaml
+---
+id: sdd-cli:DLT-011
+type: Delta
+lifecycle:
+  status: approved
+  approval_record:
+    owner_role: tech-lead
+    approver_identity: cyberash
+    timestamp: 2026-08-04T15:50:10.068Z
+    change_request: "DLT-011: surface_member_drift case B fires only when the Surface is behind the declared bump"
+    scope: first-time-approval
+partition_id: sdd-cli
+title: surface_member_drift case B fires only when the Surface is behind the declared bump
+target_ids:
+  - sdd-cli:BEH-075
+kind: replace
+compatibility_action: no_longer_guaranteed
+baseline_version: sdd-cli:BL-001@v2.0.0
+description: |
+  BEH-075 case B asserted exact equality between an approved Delta's
+  surface_impact.intended_version and the target Surface.version. An
+  intended_version is a historical statement of what one Delta moved the
+  Surface to, not a standing claim about its current value, so the second
+  Delta to touch a Surface permanently reddened the first: DLT-005 declared
+  sdd-cli:SUR-009@0.7.0, DLT-010 moved it to 0.8.0, and sdd ready then told
+  the operator to "finalise" a Delta finalised in v1.4.0.
+
+  Under equality a Surface could be bumped at most once. SUR-009 is the first
+  Surface in this repo to take a second bump, which is why the defect stayed
+  latent from v1.4.0 to now.
+
+  Case B now compares semver and fires only when the Surface is BEHIND the
+  declared intended_version — the unapplied bump the rule was written to
+  catch. A Surface at or past intended_version is consistent: a later Delta
+  carried it further. An intended_version that does not parse as semver keeps
+  the equality check, so a malformed declaration is not silently exempted.
+
+  The predicate edit to the already-approved BEH-075 is applied by a one-off
+  manual spec edit, sanctioned by the partition owner, because the CLI offers
+  no in-place predicate-edit path for approved records (same exception as
+  DLT-007 / DLT-008 / DLT-009 / DLT-010).
+
+  No Surface bump: CTR-016 publishes the identifier surface_member_drift, not
+  the condition under which it fires, and no Contract or Invariant states that
+  condition. Nothing in the published member list changes.
+tests_old_behavior:
+  - the unit test asserting that an approved Delta declaring a version ABOVE
+    the Surface's fires (tests/unit/ReadyRules.test.ts) keeps its case, since
+    a Surface behind its declared bump is still drift
+  - no test asserted the ahead direction; that guarantee is withdrawn per
+    compatibility_action=no_longer_guaranteed
+tests_new_behavior:
+  - an approved Delta whose intended_version is BELOW the Surface.version
+    emits no violation (tests/unit/ReadyRules.test.ts, @covers sdd-cli:BEH-075)
+  - an approved Delta whose intended_version does not parse as semver and
+    differs from Surface.version still emits a violation
+    (tests/unit/ReadyRules.test.ts, @covers sdd-cli:BEH-075)
+caveats:
+  - a downstream spec previously red on a superseded Delta turns green; that
+    was a false positive, so no consumer loses a real signal
 ---
 ```
 

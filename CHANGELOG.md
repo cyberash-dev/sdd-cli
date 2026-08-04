@@ -10,6 +10,34 @@ landed.
 
 ## [Unreleased]
 
+### Added
+
+- **New lint rule `sdd:lifecycle-field-orphan` (`ENF-009B`).** The converse of
+  `ENF-009`: a record carrying `sunset_version` or `replacement_id` while its
+  status is not `deprecated`, or `compatibility_action` while its status is not
+  `removed`, is now an error. Previously such a record was simultaneously in
+  force and superseded, and both `sdd lint` and `sdd ready` stayed silent. A
+  field the record's template declares as its own is exempt, so an approved
+  `Delta` keeps its required `compatibility_action`. Spec: `BEH-080`,
+  `DLT-010`; `SUR-009` takes a minor bump to `0.8.0` per the append-only rule.
+
+### Fixed
+
+- **`surface_member_drift` no longer reports a superseded Delta.** Case B of
+  `BEH-075` asserted exact equality between an approved Delta's
+  `surface_impact.intended_version` and the target `Surface.version`, so any
+  Surface bumped a second time permanently reddened the Delta that bumped it
+  first. It now compares semver and fires only when the Surface is behind the
+  declared version. Spec: `DLT-011`.
+- **`sdd ready` now aggregates `sdd:open-q-blocking` (`ENF-059`).** The rule was
+  wired into `sdd lint` only, so a spec with an unresolved
+  `Open-Q.blocking=yes` failed `sdd lint` but passed `sdd ready`, against
+  `BEH-019`.
+- **`sdd doctor --rule-version` no longer reports `stale_diagnostic`.** The
+  ready violation kind `surface_member_drift` (`BEH-075`) has been emitted since
+  v1.4.0 but no `rules/enforcement_registry.md` row claimed it; added as
+  `ENF-002C`.
+
 ## [2.0.0] — 2026-07-19
 
 ### Removed

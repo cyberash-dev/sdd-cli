@@ -22,9 +22,10 @@ export const LINT_DIAGNOSTIC_IDS = [
 	"sdd:type-migration-mode",
 	"sdd:type-migration-runtime-state",
 	"sdd:type-surface-boundary-type",
-	/* P1 — cheap requiredness gaps (ENF-003/009/010/011/012) */
+	/* P1 — cheap requiredness gaps (ENF-003/009/009B/010/011/012) */
 	"sdd:baseline-version-required",
 	"sdd:deprecated-fields-required",
+	"sdd:lifecycle-field-orphan",
 	"sdd:assumption-downgrade-approval",
 	"sdd:partition-default-policy-set",
 	"sdd:generated-artifact-surface-ref",

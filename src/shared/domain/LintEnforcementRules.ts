@@ -2,6 +2,7 @@ import { isBlockedApprover } from "./AgentBlocklist.js";
 import type { Diagnostic } from "./LintReport.js";
 import { isRecord } from "./LintRuleHelpers.js";
 import type { LintRecord } from "./SpecRecord.js";
+import { isFieldNormative } from "./TemplateFieldMetadata.js";
 
 /*
  * P1 — cheap requiredness rules (ENF-003/009/010/011/012). Each follows the
@@ -56,6 +57,39 @@ export function deprecatedFieldsRequiredRule(rec: LintRecord): Diagnostic[] {
 			file: rec.file,
 			line: rec.line,
 			message: `ID "${rec.id}" has lifecycle.status=deprecated but no replacement_id (SDD §1.6).`,
+		});
+	}
+	return out;
+}
+
+const LIFECYCLE_ONLY_FIELDS = [
+	{ field: "sunset_version", requiredStatus: "deprecated" },
+	{ field: "replacement_id", requiredStatus: "deprecated" },
+	{ field: "compatibility_action", requiredStatus: "removed" },
+] as const;
+
+/** ENF-009B: the converse of ENF-009 — a lifecycle-only field carried at a
+ *  status that does not call for it (SDD §1.6); a field the template declares
+ *  as its own (Delta.compatibility_action) is exempt. */
+export function lifecycleFieldOrphanRule(rec: LintRecord): Diagnostic[] {
+	const out: Diagnostic[] = [];
+	for (const { field, requiredStatus } of LIFECYCLE_ONLY_FIELDS) {
+		if (rec.lifecycleStatus === requiredStatus) {
+			continue;
+		}
+		if (isFieldNormative(rec.template, field)) {
+			continue;
+		}
+		const value = rec.parsed[field];
+		if (typeof value !== "string" || value.length === 0) {
+			continue;
+		}
+		out.push({
+			severity: "error",
+			rule: "sdd:lifecycle-field-orphan",
+			file: rec.file,
+			line: rec.line,
+			message: `ID "${rec.id}" carries ${field} but lifecycle.status=${rec.lifecycleStatus ?? "missing"}; ${field} belongs to a ${requiredStatus} record (SDD §1.6).`,
 		});
 	}
 	return out;

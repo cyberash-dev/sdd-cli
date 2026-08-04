@@ -57,6 +57,7 @@ Each row carries:
 | ENF-007E | ENF-007 | PR report shows debt budget delta vs previous PR | report-evidence | sdd report | implementation-valid | — | implemented:hybrid | PR author | PR merge |
 | ENF-008 | — | Diagnostic rule IDs are stable public Surface (drift kinds: `version_mismatch`, `missing_diagnostic`, `stale_diagnostic`) | graph-consistency | sdd doctor | — | version_mismatch \| missing_diagnostic \| stale_diagnostic | implemented | — | release cut |
 | ENF-009 | — | `deprecated` ⇒ `sunset_version` + `replacement_id` | structural-lint | sdd lint | spec-valid | sdd:deprecated-fields-required | implemented | — | — |
+| ENF-009B | ENF-009 | Lifecycle-only field carried at a status that does not call for it (`sunset_version`/`replacement_id` without `deprecated`; `compatibility_action` without `removed`), unless the record's template declares the field as its own | structural-lint | sdd lint | spec-valid | sdd:lifecycle-field-orphan | implemented | — | — |
 | ENF-010 | — | ASSUMPTION downgrade `blocking → advisory` requires `approval_record` (≠ agent identity) | structural-lint | sdd lint | spec-valid | sdd:assumption-downgrade-approval | implemented | — | — |
 | ENF-011 | — | Partition declares `default_policy_set[]` (≥0, explicit) | structural-lint | sdd lint | spec-valid | sdd:partition-default-policy-set | implemented | — | — |
 | ENF-012 | — | `GeneratedArtifact.published_surface=yes` ⇒ Surface-ref | structural-lint | sdd lint | spec-valid | sdd:generated-artifact-surface-ref | implemented | — | — |

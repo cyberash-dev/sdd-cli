@@ -12,6 +12,7 @@ export {
 	debtBudgetFormRule,
 	fieldTypeRules,
 	generatedArtifactSurfaceRefRule,
+	lifecycleFieldOrphanRule,
 	lifecycleStatusRules,
 	migrationCrossPartitionRule,
 	migrationEnforcementStageRule,

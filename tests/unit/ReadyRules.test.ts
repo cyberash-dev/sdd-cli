@@ -341,6 +341,53 @@ test("ruleSurfaceMemberDrift does not fire when surface_impact version is applie
 	assert.equal(ruleSurfaceMemberDrift(viewWith([surface, delta])).length, 0);
 });
 
+test("ruleSurfaceMemberDrift does not fire when the Surface is past a superseded Delta's intended_version", () => {
+	// @covers sdd-cli:BEH-075
+	// @covers sdd-cli:DLT-011
+	const surface = record({
+		id: "fixture:SUR-001",
+		template: "Surface",
+		lifecycleStatus: "approved",
+		parsed: { version: "1.2.0", members: ["fixture:CTR-001"] },
+	});
+	const supersededDelta = record({
+		id: "fixture:DLT-001",
+		template: "Delta",
+		lifecycleStatus: "approved",
+		parsed: {
+			surface_impact: [{ id: "fixture:SUR-001", intended_version: "1.1.0" }],
+		},
+	});
+
+	assert.equal(
+		ruleSurfaceMemberDrift(viewWith([surface, supersededDelta])).length,
+		0,
+	);
+});
+
+test("ruleSurfaceMemberDrift fires when a non-semver intended_version differs from Surface.version", () => {
+	// @covers sdd-cli:BEH-075
+	// @covers sdd-cli:DLT-011
+	const surface = record({
+		id: "fixture:SUR-001",
+		template: "Surface",
+		lifecycleStatus: "approved",
+		parsed: { version: "1.0.0", members: ["fixture:CTR-001"] },
+	});
+	const delta = record({
+		id: "fixture:DLT-001",
+		template: "Delta",
+		lifecycleStatus: "approved",
+		parsed: {
+			surface_impact: [{ id: "fixture:SUR-001", intended_version: "v2-beta" }],
+		},
+	});
+
+	const violations = ruleSurfaceMemberDrift(viewWith([surface, delta]));
+	assert.equal(violations.length, 1);
+	assert.equal(violations[0]!.expected, "v2-beta");
+});
+
 test("ruleSurfaceMemberDrift ignores a proposed Delta's surface_impact", () => {
 	// @covers sdd-cli:BEH-075
 	const surface = record({

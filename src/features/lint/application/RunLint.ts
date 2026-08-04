@@ -19,6 +19,7 @@ import {
 	deprecatedFieldsRequiredRule,
 	fieldTypeRules,
 	generatedArtifactSurfaceRefRule,
+	lifecycleFieldOrphanRule,
 	lifecycleStatusRules,
 	migrationCrossPartitionRule,
 	migrationEnforcementStageRule,
@@ -121,9 +122,10 @@ function lintFileInto(
 			...approvalRecordRules(rec),
 			...testObligationRules(rec),
 			...fieldTypeRules(rec),
-			/* P1 (ENF-003/009/010/011/012) */
+			/* P1 (ENF-003/009/009B/010/011/012) */
 			...baselineVersionRequiredRule(rec),
 			...deprecatedFieldsRequiredRule(rec),
+			...lifecycleFieldOrphanRule(rec),
 			...assumptionDowngradeApprovalRule(rec, approverBlocklist),
 			...partitionDefaultPolicySetRule(rec),
 			...generatedArtifactSurfaceRefRule(rec),

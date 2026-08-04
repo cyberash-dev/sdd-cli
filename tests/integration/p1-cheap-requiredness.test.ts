@@ -3,8 +3,10 @@
 // @covers sdd-cli:BEH-031
 // @covers sdd-cli:BEH-032
 // @covers sdd-cli:BEH-033
+// @covers sdd-cli:BEH-080
+// @covers sdd-cli:DLT-010
 //
-// P1 — five cheap requiredness rules (ENF-003/009/010/011/012). Each rule is
+// P1 — cheap requiredness rules (ENF-003/009/009B/010/011/012). Each rule is
 // covered by a positive fixture (rule fires) and a negative fixture (rule
 // silent). Run via the CLI binary so the dispatcher + JSON envelope are
 // part of the contract.
@@ -208,6 +210,183 @@ test("BEH-030: deprecated record with sunset_version + replacement_id is silent"
 	const { body } = await lintBody(root);
 	const fired = body.diagnostics.filter(
 		(d) => d.rule === "sdd:deprecated-fields-required",
+	);
+	assert.deepEqual(fired, []);
+});
+
+// ENF-009B — sdd:lifecycle-field-orphan --------------------------------------
+
+test("BEH-080: approved record carrying sunset_version + replacement_id triggers", async () => {
+	const block = [
+		"```yaml",
+		"---",
+		"id: fixture:beh-orphan-1",
+		"type: Behavior",
+		"lifecycle:",
+		"  status: approved",
+		"  approval_record:",
+		"    owner_role: tech-lead",
+		"    approver_identity: alice",
+		"    timestamp: 2026-04-30T00:00:00.000Z",
+		"    change_request: https://example.com/pr/3",
+		"    scope: first-time-approval",
+		"partition_id: fixture",
+		"title: in force and superseded at once",
+		'sunset_version: "2.0.0"',
+		'replacement_id: "fixture:beh-replacement"',
+		"test_obligation:",
+		"  predicate: |",
+		"    Contradictory lifecycle fields.",
+		"  test_template: integration",
+		"---",
+		"```",
+	].join("\n");
+	const { root } = await fixtureProject(block);
+
+	const { code, body } = await lintBody(root);
+	assert.equal(code, 1);
+	const fired = body.diagnostics.filter(
+		(d) => d.rule === "sdd:lifecycle-field-orphan",
+	);
+	assert.equal(
+		fired.length,
+		2,
+		`expected 2 (sunset + replacement) — got ${JSON.stringify(fired)}`,
+	);
+	for (const f of fired) assert.match(f.message, /fixture:beh-orphan-1/);
+});
+
+test("BEH-080: approved non-Delta record carrying compatibility_action triggers", async () => {
+	const block = [
+		"```yaml",
+		"---",
+		"id: fixture:beh-orphan-2",
+		"type: Behavior",
+		"lifecycle:",
+		"  status: approved",
+		"  approval_record:",
+		"    owner_role: tech-lead",
+		"    approver_identity: alice",
+		"    timestamp: 2026-04-30T00:00:00.000Z",
+		"    change_request: https://example.com/pr/4",
+		"    scope: first-time-approval",
+		"partition_id: fixture",
+		"title: retirement clause without retirement",
+		"compatibility_action: reject",
+		"test_obligation:",
+		"  predicate: |",
+		"    Compatibility clause on a live record.",
+		"  test_template: integration",
+		"---",
+		"```",
+	].join("\n");
+	const { root } = await fixtureProject(block);
+
+	const { code, body } = await lintBody(root);
+	assert.equal(code, 1);
+	const fired = body.diagnostics.filter(
+		(d) => d.rule === "sdd:lifecycle-field-orphan",
+	);
+	assert.equal(fired.length, 1, JSON.stringify(fired));
+	assert.match(fired[0]!.message, /compatibility_action/);
+});
+
+test("BEH-080: approved Delta carrying compatibility_action is silent", async () => {
+	const block = [
+		"```yaml",
+		"---",
+		"id: fixture:dlt-orphan-1",
+		"type: Delta",
+		"lifecycle:",
+		"  status: approved",
+		"  approval_record:",
+		"    owner_role: tech-lead",
+		"    approver_identity: alice",
+		"    timestamp: 2026-04-30T00:00:00.000Z",
+		"    change_request: https://example.com/pr/5",
+		"    scope: first-time-approval",
+		"partition_id: fixture",
+		"title: the template owns the field",
+		"kind: replace",
+		"compatibility_action: ignore",
+		"target_ids:",
+		"  - fixture:beh-orphan-1",
+		"baseline_version: fixture:BL-001@v1.0.0",
+		"---",
+		"```",
+	].join("\n");
+	const { root } = await fixtureProject(block);
+
+	const { body } = await lintBody(root);
+	const fired = body.diagnostics.filter(
+		(d) => d.rule === "sdd:lifecycle-field-orphan",
+	);
+	assert.deepEqual(fired, []);
+});
+
+test("BEH-080: deprecated record carrying both sunset fields is silent", async () => {
+	const block = [
+		"```yaml",
+		"---",
+		"id: fixture:beh-orphan-3",
+		"type: Behavior",
+		"lifecycle:",
+		"  status: deprecated",
+		"  approval_record:",
+		"    owner_role: tech-lead",
+		"    approver_identity: alice",
+		"    timestamp: 2026-04-30T00:00:00.000Z",
+		"    change_request: https://example.com/pr/6",
+		"    scope: sunset",
+		"partition_id: fixture",
+		"title: graceful sunset",
+		'sunset_version: "2.0.0"',
+		'replacement_id: "fixture:beh-replacement"',
+		"test_obligation:",
+		"  predicate: |",
+		"    Documented sunset.",
+		"  test_template: integration",
+		"---",
+		"```",
+	].join("\n");
+	const { root } = await fixtureProject(block);
+
+	const { body } = await lintBody(root);
+	const fired = body.diagnostics.filter(
+		(d) => d.rule === "sdd:lifecycle-field-orphan",
+	);
+	assert.deepEqual(fired, []);
+});
+
+test("BEH-080: removed record carrying compatibility_action is silent", async () => {
+	const block = [
+		"```yaml",
+		"---",
+		"id: fixture:beh-orphan-4",
+		"type: Behavior",
+		"lifecycle:",
+		"  status: removed",
+		"  approval_record:",
+		"    owner_role: tech-lead",
+		"    approver_identity: alice",
+		"    timestamp: 2026-04-30T00:00:00.000Z",
+		"    change_request: https://example.com/pr/7",
+		"    scope: removal",
+		"partition_id: fixture",
+		"title: withdrawn behavior",
+		"compatibility_action: reject",
+		"test_obligation:",
+		"  predicate: |",
+		"    Old input now produces the typed error.",
+		"  test_template: integration",
+		"---",
+		"```",
+	].join("\n");
+	const { root } = await fixtureProject(block);
+
+	const { body } = await lintBody(root);
+	const fired = body.diagnostics.filter(
+		(d) => d.rule === "sdd:lifecycle-field-orphan",
 	);
 	assert.deepEqual(fired, []);
 });

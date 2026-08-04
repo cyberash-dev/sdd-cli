@@ -259,6 +259,26 @@ export function actualBump(
 	return "patch"; /* unchanged or downgrade — treat as patch (no cascade triggered) */
 }
 
+/** DLT-011: a Surface at or past its declared intended_version was carried
+ *  there by a later Delta; only a Surface behind it is an unapplied bump. */
+export function isVersionBehind(
+	actual: string | null,
+	intended: string,
+): boolean {
+	const a = actual === null ? null : parseSemver(actual);
+	const i = parseSemver(intended);
+	if (a === null || i === null) {
+		return actual !== intended;
+	}
+	if (a.major !== i.major) {
+		return a.major < i.major;
+	}
+	if (a.minor !== i.minor) {
+		return a.minor < i.minor;
+	}
+	return a.patch < i.patch;
+}
+
 interface ParsedSemver {
 	major: number;
 	minor: number;

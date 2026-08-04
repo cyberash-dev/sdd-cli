@@ -3,6 +3,7 @@ import type { LintRecord } from "../../../shared/domain/SpecRecord.js";
 import type { Marker } from "./MarkerParser.js";
 import { fileInGlobs } from "./PartitionResolver.js";
 import type { ReadyViolation } from "./ReadyViolation.js";
+import { isVersionBehind } from "./SpecDiff.js";
 import {
 	isNormative,
 	isNotApplicableTestObligation,
@@ -268,7 +269,7 @@ export function ruleSurfaceMemberDrift(view: PartitionView): ReadyViolation[] {
 				continue;
 			}
 			const actual = readVersion(surface);
-			if (actual === intended) {
+			if (!isVersionBehind(actual, intended)) {
 				continue;
 			}
 			out.push({

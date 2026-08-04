@@ -38,6 +38,41 @@ test("ready surfaces lint error-severity diagnostics under aggregated_lint kind"
 	);
 });
 
+test("ready surfaces an unresolved blocking Open-Q under aggregated_lint kind", async () => {
+	// @covers sdd-cli:BEH-019
+	const root = await readyFixture({
+		config: {
+			spec_file: "spec/spec.md",
+			baseline_id: "fixture:BL-001",
+			discovery_scope: ["src"],
+			mechanism: "git_tree_hash_v1",
+			partitions: {
+				fixture: {
+					spec_paths: ["spec/spec.md"],
+					test_paths: [],
+				},
+			},
+		},
+		files: {
+			"spec/spec.md": specWithBlockingOpenQ("fixture:OQ-001"),
+		},
+	});
+
+	const result = await runReady(root);
+	const env = parseEnvelope(result.stdout);
+
+	assert.equal(result.code, 1);
+	const sources = new Set(
+		env.violations
+			.filter((v) => v.kind === "aggregated_lint")
+			.map((v) => v.source),
+	);
+	assert.ok(
+		sources.has("sdd:open-q-blocking"),
+		`expected sdd:open-q-blocking in ${[...sources].join(", ")}`,
+	);
+});
+
 function specWithApprovalGap(id: string): string {
 	return `# fixture
 
@@ -52,6 +87,23 @@ title: approved without approval_record
 test_obligation:
   not_applicable: doc_only
   reason: not testable
+---
+\`\`\`
+`;
+}
+
+function specWithBlockingOpenQ(id: string): string {
+	return `# fixture
+
+\`\`\`yaml
+---
+id: ${id}
+type: Open-Q
+lifecycle:
+  status: proposed
+partition_id: fixture
+title: unresolved and blocking
+blocking: yes
 ---
 \`\`\`
 `;

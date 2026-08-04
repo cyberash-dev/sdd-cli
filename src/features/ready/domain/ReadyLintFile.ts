@@ -19,6 +19,7 @@ import {
 	lifecycleStatusRules,
 	migrationCrossPartitionRule,
 	migrationEnforcementStageRule,
+	openQBlockingRule,
 	partitionDefaultPolicySetRule,
 	REQUIRED_PARTITION_SECTIONS,
 	sectionViolations,
@@ -94,6 +95,7 @@ function lintFileInto(
 			...migrationEnforcementStageRule(rec, records),
 			...migrationCrossPartitionRule(rec),
 			...debtBudgetFormRule(rec),
+			...openQBlockingRule(rec),
 		]) {
 			next = appendDiagnostic(next, d);
 		}

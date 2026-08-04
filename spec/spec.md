@@ -111,15 +111,15 @@ discovery_scope:
   - tsconfig.json
 coverage_evidence:
   - kind: git_tree_hash_v1
-    reference: 9b7d28fb0a5e5d8d1cb5a354c3ea2997f26d7ccf
+    reference: e5c9baec7c10209fca0dd3e2962d2c0aef7a2277
     note: |
       Token covers implementation, tests, schema, and build metadata.
       spec/spec.md and .sdd/config.json are intentionally outside this
       repo's own Discovery scope because BL-001 stores the token inside
       spec/spec.md; including that file would make the token
       self-referential.
-freshness_token: f086d4a7eb93111e97290ebcce7ae83f2ada9fb66291e196b71c6b27dba53a5b
-baseline_commit_sha: 9b7d28fb0a5e5d8d1cb5a354c3ea2997f26d7ccf
+freshness_token: dc061d24e621f48cb90c55281267ca12b78c07dcdeaf191d0c67e4706a8a9686
+baseline_commit_sha: e5c9baec7c10209fca0dd3e2962d2c0aef7a2277
 mechanism: git_tree_hash_v1
 notes: |
   Brownfield baseline carries no preserved as-is behavior by itself.

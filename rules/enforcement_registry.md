@@ -44,6 +44,7 @@ Each row carries:
 | ENF-001 | — | Weasel words banned in normative sections; modal phrases in `is_normative=true` fields | structural-lint | sdd lint | spec-valid | sdd:weasel-word | implemented | — | — |
 | ENF-002A | ENF-002 | Approved/deprecated/removed Surface referencing a non-approved member is flagged | graph-consistency | sdd ready | spec-valid | surface_unapproved_ref | implemented | — | — |
 | ENF-002B | ENF-002 | Materialising `lifecycle.status=approved` via finalize refuses when the plan references still-proposed IDs (envelope reason `proposed-references`) | graph-consistency | sdd finalize | spec-valid | — | implemented | — | — |
+| ENF-002C | ENF-002 | Record declaring `surface_ref` is absent from that Surface's `members`, or an approved Delta's declared `surface_impact` bump is unapplied | graph-consistency | sdd ready | spec-valid | surface_member_drift | implemented | — | — |
 | ENF-003 | — | Delta/Migration carries `baseline_version` | structural-lint | sdd lint | spec-valid | sdd:baseline-version-required | implemented | — | — |
 | ENF-004A | ENF-004 | Major Surface bump computed via semver cascade (Policy / Invariant(contractual) → referencing Surface) | derived-versioning | sdd ready | spec-valid | surface_semver_cascade | implemented | — | — |
 | ENF-004B | ENF-004 | Major-bump test oracle reviewed (input classes, negative oracle, assertion summary) | human-review | human | — | — | — | surface owner | PR merge |

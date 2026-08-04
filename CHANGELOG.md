@@ -10,6 +10,8 @@ landed.
 
 ## [Unreleased]
 
+## [2.1.0] — 2026-08-04
+
 ### Added
 
 - **New lint rule `sdd:lifecycle-field-orphan` (`ENF-009B`).** The converse of
@@ -437,7 +439,8 @@ landed.
 - Shipped via `npm pack` tarball (`@cyberash/sdd-cli@0.1.0.tgz`); npm
   registry publication intentionally out of scope.
 
-[Unreleased]: https://github.com/cyberash-dev/sdd-cli/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/cyberash-dev/sdd-cli/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/cyberash-dev/sdd-cli/releases/tag/v2.1.0
 [1.3.0]: https://github.com/cyberash-dev/sdd-cli/releases/tag/v1.3.0
 [1.1.0]: https://github.com/cyberash-dev/sdd-cli/releases/tag/v1.1.0
 [1.0.3]: https://github.com/cyberash-dev/sdd-cli/releases/tag/v1.0.3
